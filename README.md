@@ -1,8 +1,10 @@
 # Public domain mDNS/DNS-SD library in C
 
+Rewritten to use C++ features.
+
 This library provides a header only cross-platform mDNS and DNS-DS library in C. The latest source code is always available at
 
-https://github.com/mjansson/mdns
+https://github.com/mjansson/mdns [https://github.com/opendragon/mdns++]
 
 This library is put in the public domain; you can redistribute it and/or modify it without any restrictions.
 
