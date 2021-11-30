@@ -15,7 +15,7 @@ local.properties
 build.ninja
 
 # Generated version
-version.c
+version.cpp
 
 # External tool builders
 .externalToolBuilders/

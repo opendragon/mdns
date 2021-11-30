@@ -22,7 +22,7 @@ The `mdns.cpp` test executable file demonstrates the use of all features, includ
 
 ### Sockets
 
-Socket for mDNS communication can either be opened by the library by using `mdns_socket_open_ipv4` or `mDNS::socket_open_ipv6`, or by initializing an existing socket with `mDNS::socket_setup_ipv4` or `mDNS::socket_setup_ipv6`. The socket open/setup functions will initialize the socket with multicast membership (including loopback) and set to non-blocking mode.
+Socket for mDNS communication can either be opened by the library by using `mDNS::socket_open_ipv4` or `mDNS::socket_open_ipv6`, or by initializing an existing socket with `mDNS::socket_setup_ipv4` or `mDNS::socket_setup_ipv6`. The socket open/setup functions will initialize the socket with multicast membership (including loopback) and set to non-blocking mode.
 
 Call `mDNS::socket_close` to close a socket opened with `mDNS::socket_open_ipv4` or `mDNS::socket_open_ipv6`.
 
@@ -42,13 +42,13 @@ If you want to do mDNS service response to incoming queries, you do not need to 
 
 To send a DNS-SD service discovery request use `mDNS::discovery_send`. This will send a single multicast packet (single PTR question record for `_services._dns-sd._udp.local.`) requesting a unicast response.
 
-To read discovery responses use `mDNS::discovery_recv`. All records received since last call will be piped to the callback supplied in the function call. The entry type will be one of `MDNS_ENTRYTYPE_ANSWER`, `MDNS_ENTRYTYPE_AUTHORITY` and `MDNS_ENTRYTYPE_ADDITIONAL`.
+To read discovery responses use `mDNS::discovery_recv`. All records received since last call will be piped to the callback supplied in the function call. The entry type will be one of `kEntryTypeAnswer`, `kEntryTypeAuthority` and `kEntryTypeAdditional`.
 
 ### Query
 
 To send a one-shot mDNS query for a single record use `mDNS::query_send`. This will send a single multicast packet for the given record and name (for example PTR record for `_http._tcp.local.`). You can optionally pass in a query ID for the query for later filtering of responses (even though this is discouraged by the RFC), or pass 0 to be fully compliant. The function returns the query ID associated with this query, which if non-zero can be used to filter responses in `mDNS::query_recv`. If the socket is bound to port 5353 a multicast response is requested, otherwise a unicast response.
 
-To read query responses use `mDNS::query_recv`. All records received since last call will be piped to the callback supplied in the function call. If `query_id` parameter is non-zero the function will filter out any response with a query ID that does not match the given query ID. The entry type will be one of `MDNS_ENTRYTYPE_ANSWER`, `MDNS_ENTRYTYPE_AUTHORITY` and `MDNS_ENTRYTYPE_ADDITIONAL`.
+To read query responses use `mDNS::query_recv`. All records received since last call will be piped to the callback supplied in the function call. If `query_id` parameter is non-zero the function will filter out any response with a query ID that does not match the given query ID. The entry type will be one of `kEntryTypeAnswer`, `kEntryTypeAuthority` and `kEntryTypeAdditional`.
 
 Note that a socket opened for one-shot queries from an emphemeral port will not recieve any unsolicited answers (announces) as these are sent as a multicast on port 5353.
 
@@ -56,7 +56,7 @@ Note that a socket opened for one-shot queries from an emphemeral port will not 
 
 To listen for incoming DNS-SD requests and mDNS queries the socket can be opened/setup on the default interface by passing 0 as socket address in the call to the socket open/setup functions (the socket will receive data from all network interfaces). Then call `mDNS::socket_listen` either on notification of incoming data, or by setting blocking mode and calling `mDNS::socket_listen` to block until data is available and parsed.
 
-The entry type passed to the callback will be `MDNS_ENTRYTYPE_QUESTION` and record type indicates which record to respond with. The example program responds to SRV, PTR, A and AAAA records. Use the `mDNS::string_extract` function to get the name string of the service record that was asked for.
+The entry type passed to the callback will be `kEntryTypeQuestion` and record type indicates which record to respond with. The example program responds to SRV, PTR, A and AAAA records. Use the `mDNS::string_extract` function to get the name string of the service record that was asked for.
 
 If service record name is `_services._dns-sd._udp.local.` you should use `mDNS::discovery_answer` to send the records of the services you provide (DNS-SD).
 

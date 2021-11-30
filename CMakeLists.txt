@@ -25,7 +25,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # ##############################################################################
 
 if(MDNS_BUILD_EXAMPLE)
-  add_executable(${PROJECT_NAME}_example mdns.c)
+  add_executable(${PROJECT_NAME}_example mdns.cpp)
   target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME})
 endif()
 
@@ -63,4 +63,4 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
               "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-install(FILES "${PROJECT_SOURCE_DIR}/mdns.h" DESTINATION include)
+install(FILES "${PROJECT_SOURCE_DIR}/mdns.hpp" DESTINATION include)
