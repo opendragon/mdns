@@ -66,18 +66,18 @@ static mDNS::string_t
 ipv4_address_to_string
 	(char * buffer,
 	 const size_t capacity,
-	 const struct sockaddr_in * addr,
+	 const struct sockaddr_in & addr,
 	 const size_t addrlen)
 {
 	char host[NI_MAXHOST] = { 0 };
 	char service[NI_MAXSERV] = { 0 };
-	int	ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(addr), static_cast<socklen_t>(addrlen), host, NI_MAXHOST,
+	int	ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(&addr), static_cast<socklen_t>(addrlen), host, NI_MAXHOST,
 	                      service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
 	int len = 0;
 
 	if (ret == 0)
 	{
-		if (addr->sin_port != 0)
+		if (addr.sin_port != 0)
 		{
 			len = snprintf(buffer, capacity, "%s:%s", host, service);
 		}
@@ -97,18 +97,18 @@ static mDNS::string_t
 ipv6_address_to_string
 	(char * buffer,
 	 const size_t capacity,
-	 const struct sockaddr_in6 * addr,
+	 const struct sockaddr_in6 & addr,
 	 const size_t addrlen)
 {
 	char host[NI_MAXHOST] = { 0 };
 	char service[NI_MAXSERV] = { 0 };
-	int ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(addr), static_cast<socklen_t>(addrlen), host, NI_MAXHOST,
-	                      service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
+	int ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(&addr), static_cast<socklen_t>(addrlen), host, NI_MAXHOST,
+								 service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
 	int len = 0;
 
 	if (ret == 0)
 	{
-		if (addr->sin6_port != 0)
+		if (addr.sin6_port != 0)
 		{
 			len = snprintf(buffer, capacity, "[%s]:%s", host, service);
 		}
@@ -128,22 +128,22 @@ static mDNS::string_t
 ip_address_to_string
 	(char * buffer,
 	 const size_t capacity,
-	 const struct sockaddr * addr,
+	 const struct sockaddr & addr,
 	 const size_t addrlen)
 {
-	if (addr->sa_family == AF_INET6)
+	if (addr.sa_family == AF_INET6)
 	{
-		return ipv6_address_to_string(buffer, capacity, reinterpret_cast<const struct sockaddr_in6 *>(addr), addrlen);
+		return ipv6_address_to_string(buffer, capacity, reinterpret_cast<const struct sockaddr_in6 &>(addr), addrlen);
 
 	}
-	return ipv4_address_to_string(buffer, capacity, reinterpret_cast<const struct sockaddr_in *>(addr), addrlen);
+	return ipv4_address_to_string(buffer, capacity, reinterpret_cast<const struct sockaddr_in &>(addr), addrlen);
 }
 
 // Callback handling parsing answers to queries sent
 static int
 query_callback
 	(const int UNUSED_PARAM_(sock),
-	 const struct sockaddr * from,
+	 const struct sockaddr & from,
 	 const size_t addrlen,
 	 const mDNS::entry_type_t entry,
 	 const uint16_t UNUSED_PARAM_(query_id),
@@ -186,8 +186,8 @@ query_callback
 	{
 		struct sockaddr_in addr;
 
-		mDNS::record_parse_a(data, size, record_offset, record_length, &addr);
-		mDNS::string_t addrstr = ipv4_address_to_string(namebuffer, sizeof(namebuffer), &addr, sizeof(addr));
+		mDNS::record_parse_a(data, size, record_offset, record_length, addr);
+		mDNS::string_t addrstr = ipv4_address_to_string(namebuffer, sizeof(namebuffer), addr, sizeof(addr));
 
 		printf("%.*s : %s %.*s A %.*s\n", MDNS_STRING_FORMAT(fromaddrstr), entrytype,
 		       MDNS_STRING_FORMAT(entrystr), MDNS_STRING_FORMAT(addrstr));
@@ -197,8 +197,8 @@ query_callback
 	{
 		struct sockaddr_in6 addr;
 
-		mDNS::record_parse_aaaa(data, size, record_offset, record_length, &addr);
-		mDNS::string_t addrstr = ipv6_address_to_string(namebuffer, sizeof(namebuffer), &addr, sizeof(addr));
+		mDNS::record_parse_aaaa(data, size, record_offset, record_length, addr);
+		mDNS::string_t addrstr = ipv6_address_to_string(namebuffer, sizeof(namebuffer), addr, sizeof(addr));
 
 		printf("%.*s : %s %.*s AAAA %.*s\n", MDNS_STRING_FORMAT(fromaddrstr), entrytype,
 		       MDNS_STRING_FORMAT(entrystr), MDNS_STRING_FORMAT(addrstr));
@@ -222,6 +222,8 @@ query_callback
 				printf("%.*s : %s %.*s TXT %.*s\n", MDNS_STRING_FORMAT(fromaddrstr), entrytype,
 				       MDNS_STRING_FORMAT(entrystr), MDNS_STRING_FORMAT(txtbuffer[itxt].key));
 			}
+			release_mdns_string(txtbuffer[itxt].key);
+			release_mdns_string(txtbuffer[itxt].value);
 		}
 	}
 	else
@@ -231,6 +233,7 @@ query_callback
 		       rclass, ttl, static_cast<int>(record_length));
 	}
 	release_mdns_string(fromaddrstr);
+	release_mdns_string(entrystr);
 	return 0;
 }
 
@@ -238,7 +241,7 @@ query_callback
 static int
 service_callback
 	(const int sock,
-	 const struct sockaddr * from,
+	 const struct sockaddr & from,
 	 const size_t addrlen,
 	 const mDNS::entry_type_t entry,
 	 const uint16_t query_id,
@@ -290,6 +293,7 @@ service_callback
 	}
 	else
 	{
+		release_mdns_string(name);
 		return 0;
 
 	}
@@ -312,7 +316,7 @@ service_callback
 			printf("  --> answer %.*s (%s)\n", MDNS_STRING_FORMAT(answer.data.ptr.name), unicast ? "unicast" : "multicast");
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, from, addrlen, sendbuffer, sizeof(sendbuffer),
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
 				                          		query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0, 0, 0);
 			}
 			else
@@ -361,7 +365,7 @@ service_callback
 			       MDNS_STRING_FORMAT(service.record_ptr.data.ptr.name), unicast ? "unicast" : "multicast");
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, from, addrlen, sendbuffer, sizeof(sendbuffer),
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
 												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
 												additional, additional_count);
 			}
@@ -407,7 +411,7 @@ service_callback
 			       MDNS_STRING_FORMAT(service.record_srv.data.srv.name), service.port, unicast ? "unicast" : "multicast");
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, from, addrlen, sendbuffer, sizeof(sendbuffer),
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
 												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
 												additional, additional_count);
 			}
@@ -444,14 +448,14 @@ service_callback
 			}
 			// Send the answer, unicast or multicast depending on flag in query
 			mDNS::string_t addrstr = ip_address_to_string(addrbuffer, sizeof(addrbuffer),
-															reinterpret_cast<const struct sockaddr *>(&service.record_a.data.a.addr),
+															reinterpret_cast<const struct sockaddr &>(service.record_a.data.a.addr),
 			    											sizeof(service.record_a.data.a.addr));
 
 			printf("  --> answer %.*s IPv4 %.*s (%s)\n", MDNS_STRING_FORMAT(service.record_a.name),
 			       MDNS_STRING_FORMAT(addrstr), unicast ? "unicast" : "multicast");
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, from, addrlen, sendbuffer, sizeof(sendbuffer),
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
 												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
 												additional, additional_count);
 			}
@@ -485,14 +489,14 @@ service_callback
 			}
 			// Send the answer, unicast or multicast depending on flag in query
 			mDNS::string_t addrstr = ip_address_to_string(addrbuffer, sizeof(addrbuffer),
-			                         					reinterpret_cast<const struct sockaddr *>(&service.record_aaaa.data.aaaa.addr),
+																reinterpret_cast<const struct sockaddr &>(service.record_aaaa.data.aaaa.addr),
 			                         					sizeof(service.record_aaaa.data.aaaa.addr));
 
 			printf("  --> answer %.*s IPv6 %.*s (%s)\n",
 			       MDNS_STRING_FORMAT(service.record_aaaa.name), MDNS_STRING_FORMAT(addrstr), unicast ? "unicast" : "multicast");
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, from, addrlen, sendbuffer, sizeof(sendbuffer),
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
 												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
 												additional, additional_count);
 			}
@@ -571,23 +575,23 @@ open_client_sockets
 		{
 			if (unicast->Address.lpSockaddr->sa_family == AF_INET)
 			{
-				struct sockaddr_in * saddr = reinterpret_cast<struct sockaddr_in *>(unicast->Address.lpSockaddr);
+				struct sockaddr_in & saddr = *reinterpret_cast<struct sockaddr_in *>(unicast->Address.lpSockaddr);
 
-				if ((saddr->sin_addr.S_un.S_un_b.s_b1 != 127) || (saddr->sin_addr.S_un.S_un_b.s_b2 != 0) ||
-				    (saddr->sin_addr.S_un.S_un_b.s_b3 != 0) || (saddr->sin_addr.S_un.S_un_b.s_b4 != 1))
+				if ((saddr.sin_addr.S_un.S_un_b.s_b1 != 127) || (saddr.sin_addr.S_un.S_un_b.s_b2 != 0) ||
+					 (saddr.sin_addr.S_un.S_un_b.s_b3 != 0) || (saddr.sin_addr.S_un.S_un_b.s_b4 != 1))
 				{
 					bool log_addr = false;
 
 					if (first_ipv4)
 					{
-						service_address_ipv4 = *saddr;
+						service_address_ipv4 = saddr;
 						first_ipv4 = false;
 						log_addr = true;
 					}
 					has_ipv4 = true;
 					if (num_sockets < max_sockets)
 					{
-						saddr->sin_port = htons(static_cast<unsigned short>(port));
+						saddr.sin_port = htons(static_cast<unsigned short>(port));
 						int sock = mDNS::socket_open_ipv4(saddr);
 						if (sock >= 0)
 						{
@@ -602,7 +606,7 @@ open_client_sockets
 					if (log_addr)
 					{
 						char buffer[128];
-						string_t addr = ipv4_address_to_string(buffer, sizeof(buffer), saddr, sizeof(struct sockaddr_in));
+						string_t addr = ipv4_address_to_string(buffer, sizeof(buffer), saddr, sizeof(saddr));
 
 						printf("Local IPv4 address: %.*s\n", MDNS_STRING_FORMAT(addr));
 						release_mdns_string(addr);
@@ -611,14 +615,14 @@ open_client_sockets
 			}
 			else if (unicast->Address.lpSockaddr->sa_family == AF_INET6)
 			{
-				struct sockaddr_in6 * saddr = reinterpret_cast<struct sockaddr_in6 *>(unicast->Address.lpSockaddr);
+				struct sockaddr_in6 & saddr = *reinterpret_cast<struct sockaddr_in6 *>(unicast->Address.lpSockaddr);
 				static const unsigned char localhost[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 				static const unsigned char localhost_mapped[] = {0, 0, 0,    0,    0,    0, 0, 0,
 				                                                 0, 0, 0xff, 0xff, 0x7f, 0, 0, 1};
 
 				if ((unicast->DadState == NldsPreferred) &&
-				    memcmp(saddr->sin6_addr.s6_addr, localhost, 16) &&
-				    memcmp(saddr->sin6_addr.s6_addr, localhost_mapped, 16))
+					 memcmp(saddr.sin6_addr.s6_addr, localhost, 16) &&
+					 memcmp(saddr.sin6_addr.s6_addr, localhost_mapped, 16))
 				{
 					bool log_addr = false;
 
@@ -631,7 +635,7 @@ open_client_sockets
 					has_ipv6 = true;
 					if (num_sockets < max_sockets)
 					{
-						saddr->sin6_port = htons(static_cast<unsigned short>(port));
+						saddr.sin6_port = htons(static_cast<unsigned short>(port));
 						int sock = mDNS::socket_open_ipv6(saddr);
 
 						if (sock >= 0)
@@ -647,7 +651,7 @@ open_client_sockets
 					if (log_addr)
 					{
 						char buffer[128];
-						string_t addr = ipv6_address_to_string(buffer, sizeof(buffer), saddr, sizeof(struct sockaddr_in6));
+						string_t addr = ipv6_address_to_string(buffer, sizeof(buffer), saddr, sizeof(saddr));
 
 						printf("Local IPv6 address: %.*s\n", MDNS_STRING_FORMAT(addr));
 						release_mdns_string(addr);
@@ -677,22 +681,22 @@ open_client_sockets
 		}
 		if (ifa->ifa_addr->sa_family == AF_INET)
 		{
-			struct sockaddr_in * saddr = reinterpret_cast<struct sockaddr_in *>(ifa->ifa_addr);
+			struct sockaddr_in & saddr = *reinterpret_cast<struct sockaddr_in *>(ifa->ifa_addr);
 
-			if (saddr->sin_addr.s_addr != htonl(INADDR_LOOPBACK))
+			if (saddr.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
 			{
 				bool log_addr = false;
 
 				if (first_ipv4)
 				{
-					service_address_ipv4 = *saddr;
+					service_address_ipv4 = saddr;
 					first_ipv4 = false;
 					log_addr = true;
 				}
 				has_ipv4 = true;
 				if (num_sockets < max_sockets)
 				{
-					saddr->sin_port = htons(port);
+					saddr.sin_port = htons(port);
 					int sock = mDNS::socket_open_ipv4(saddr);
 
 					if (sock >= 0)
@@ -708,7 +712,7 @@ open_client_sockets
 				if (log_addr)
 				{
 					char buffer[128];
-					mDNS::string_t addr = ipv4_address_to_string(buffer, sizeof(buffer), saddr, sizeof(struct sockaddr_in));
+					mDNS::string_t addr = ipv4_address_to_string(buffer, sizeof(buffer), saddr, sizeof(saddr));
 
 					printf("Local IPv4 address: %.*s\n", MDNS_STRING_FORMAT(addr));
 					release_mdns_string(addr);
@@ -717,26 +721,26 @@ open_client_sockets
 		}
 		else if (ifa->ifa_addr->sa_family == AF_INET6)
 		{
-			struct sockaddr_in6 * saddr = reinterpret_cast<struct sockaddr_in6 *>(ifa->ifa_addr);
+			struct sockaddr_in6 & saddr = *reinterpret_cast<struct sockaddr_in6 *>(ifa->ifa_addr);
 			static const unsigned char localhost[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 			static const unsigned char localhost_mapped[] = {0, 0, 0,    0,    0,    0, 0, 0,
-			                                                 0, 0, 0xff, 0xff, 0x7f, 0, 0, 1};
+																			 0, 0, 0xff, 0xff, 0x7f, 0, 0, 1};
 
-			if (memcmp(saddr->sin6_addr.s6_addr, localhost, 16) &&
-			    memcmp(saddr->sin6_addr.s6_addr, localhost_mapped, 16))
+			if (memcmp(saddr.sin6_addr.s6_addr, localhost, 16) &&
+				 memcmp(saddr.sin6_addr.s6_addr, localhost_mapped, 16))
 			{
 				bool log_addr = false;
 
 				if (first_ipv6)
 				{
-					service_address_ipv6 = *saddr;
+					service_address_ipv6 = saddr;
 					first_ipv6 = false;
 					log_addr = true;
 				}
 				has_ipv6 = true;
 				if (num_sockets < max_sockets)
 				{
-					saddr->sin6_port = htons(port);
+					saddr.sin6_port = htons(port);
 					int sock = mDNS::socket_open_ipv6(saddr);
 
 					if (sock >= 0)
@@ -752,7 +756,7 @@ open_client_sockets
 				if (log_addr)
 				{
 					char buffer[128];
-					mDNS::string_t addr = ipv6_address_to_string(buffer, sizeof(buffer), saddr, sizeof(struct sockaddr_in6));
+					mDNS::string_t addr = ipv6_address_to_string(buffer, sizeof(buffer), saddr, sizeof(saddr));
 
 					printf("Local IPv6 address: %.*s\n", MDNS_STRING_FORMAT(addr));
 					release_mdns_string(addr);
@@ -793,7 +797,7 @@ open_service_sockets
 #if defined(__APPLE__)
 		sock_addr.sin_len = sizeof(sock_addr);
 #endif /* defined(__APPLE__) */
-		int sock = mDNS::socket_open_ipv4(&sock_addr);
+		int sock = mDNS::socket_open_ipv4(sock_addr);
 
 		if (sock >= 0)
 		{
@@ -811,7 +815,7 @@ open_service_sockets
 #if defined(__APPLE__)
 		sock_addr.sin6_len = sizeof(sock_addr);
 #endif /* defined(__APPLE__) */
-		int sock = mDNS::socket_open_ipv6(&sock_addr);
+		int sock = mDNS::socket_open_ipv6(sock_addr);
 
 		if (sock >= 0)
 		{
@@ -1283,12 +1287,12 @@ fuzz_mdns
 
 		offset = (size ? (rand() % size) : 0);
 		length = (size ? (rand() % (size - offset)) : 0);
-		mDNS::record_parse_a(buffer.get(), size, offset, length, &addr_ipv4);
+		mDNS::record_parse_a(buffer.get(), size, offset, length, addr_ipv4);
 		struct sockaddr_in6 addr_ipv6;
 
 		offset = (size ? (rand() % size) : 0);
 		length = (size ? (rand() % (size - offset)) : 0);
-		mDNS::record_parse_aaaa(buffer.get(), size, offset, length, &addr_ipv6);
+		mDNS::record_parse_aaaa(buffer.get(), size, offset, length, addr_ipv6);
 		offset = (size ? (rand() % size) : 0);
 		length = (size ? (rand() % (size - offset)) : 0);
 		mDNS::record_parse_txt(buffer.get(), size, offset, length, reintepret_cast<record_txt_t *>(strbuffer.get()), MAX_FUZZ_SIZE);
@@ -1299,6 +1303,17 @@ fuzz_mdns
 	}
 }
 #endif /* defined(MDNS_FUZZING) */
+
+void strip_domain
+	(char *	inBuff)
+{
+	char *	dot_pos = strchr(inBuff, '.');
+
+	if (nullptr != dot_pos)
+	{
+		*dot_pos = 0;
+	}
+}
 
 int
 main
@@ -1325,6 +1340,7 @@ main
 
 	if (GetComputerNameA(hostname_buffer, &hostname_size))
 	{
+		strip_domain(hostname_buffer);
 		hostname = hostname_buffer;
 	}
 #else /* not defined(_WIN32) */
@@ -1333,6 +1349,7 @@ main
 
 	if (gethostname(hostname_buffer, hostname_size) == 0)
 	{
+		strip_domain(hostname_buffer);
 		hostname = hostname_buffer;
 	}
 #endif /* not defined(_WIN32) */
@@ -1352,9 +1369,8 @@ main
 			}
 			if (iarg < argc)
 			{
-				const char * record_name = service;
-			
-				service = argv[iarg++];
+				const char * record_name = argv[iarg++];
+				
 				if (strcmp(record_name, "PTR") == 0)
 				{
 					query_record = mDNS::kRecordTypePTR;
@@ -1370,6 +1386,10 @@ main
 				else if (strcmp(record_name, "AAAA") == 0)
 				{
 					query_record = mDNS::kRecordTypeAAAA;
+				}
+				else if (strcmp(record_name, "TXT") == 0)
+				{
+					query_record = mDNS::kRecordTypeTXT;
 				}
 			}
 		}
