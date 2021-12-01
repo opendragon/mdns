@@ -228,3 +228,11 @@ coveralls.json
 coverallsreport.json
 codecov.json
 codecovreport.json
+
+#CMake
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+*Config.cmake
+*ConfigVersion.cmake
+
