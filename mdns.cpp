@@ -896,7 +896,7 @@ send_dns_sd
 	return 0;
 }
 
-// Send a mDNS query
+// Send an mDNS query
 static int
 send_mdns_query
 	(const char * service,
@@ -1167,7 +1167,7 @@ do_cleanup
 	}
 }
 
-// Provide a mDNS service, answering incoming DNS-SD and mDNS queries
+// Provide an mDNS service, answering incoming DNS-SD and mDNS queries
 static int
 service_mdns
 	(const char * hostname,
@@ -1225,7 +1225,7 @@ service_mdns
 #if defined(MDNS_FUZZING)
  #undef printf
 
-// Fuzzing by piping random data into the recieve functions
+// Fuzzing by piping random data into the receive functions
 static void
 fuzz_mdns
 	(void)
