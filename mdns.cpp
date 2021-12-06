@@ -1304,7 +1304,8 @@ fuzz_mdns
 }
 #endif /* defined(MDNS_FUZZING) */
 
-void strip_domain
+static void
+strip_domain
 	(char *	inBuff)
 {
 	char *	dot_pos = strchr(inBuff, '.');
