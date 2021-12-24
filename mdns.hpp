@@ -618,7 +618,7 @@ mDNS::socket_setup_ipv4
 #if (! defined(_WIN32))
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
 #endif /* not defined(_WIN32) */
-	if (bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
+	if (::bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
 	{
 		return -1;
 	
@@ -689,7 +689,7 @@ mDNS::socket_setup_ipv6
 #if (! defined(_WIN32))
 	sock_addr.sin6_addr = in6addr_any;
 #endif /* not defined(_WIN32) */
-	if (bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
+	if (::bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
 	{
 		return -1;
 	
