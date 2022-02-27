@@ -70,8 +70,8 @@ ipv4_address_to_string
 {
 	char host[NI_MAXHOST] = { 0 };
 	char service[NI_MAXSERV] = { 0 };
-	int	 ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(&addr), static_cast<socklen_t>(addrlen), host, NI_MAXHOST,
-	                      service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
+	int  ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(&addr), static_cast<socklen_t>(addrlen), host,
+									 NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
 	int  len = 0;
 
 	if (0 == ret)
@@ -101,8 +101,8 @@ ipv6_address_to_string
 {
 	char host[NI_MAXHOST] = { 0 };
 	char service[NI_MAXSERV] = { 0 };
-	int  ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(&addr), static_cast<socklen_t>(addrlen), host, NI_MAXHOST,
-								 service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
+	int  ret = getnameinfo(reinterpret_cast<const struct sockaddr *>(&addr), static_cast<socklen_t>(addrlen), host,
+								  NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV | NI_NUMERICHOST);
 	int  len = 0;
 
 	if (0 == ret)
@@ -161,27 +161,31 @@ query_callback
 	mDNS::string_t fromaddrstr = ip_address_to_string(addrbuffer, sizeof(addrbuffer), from, addrlen);
 	const char *   entrytype = ((entry == mDNS::kEntryTypeAnswer) ? "answer" :
                                 ((entry == mDNS::kEntryTypeAuthority) ? "authority" : "additional"));
-	mDNS::string_t entrystr = mDNS::mDNSPrivate::string_extract(data, size, work_offset, entrybuffer, sizeof(entrybuffer));
+	mDNS::string_t entrystr = mDNS::mDNSPrivate::string_extract(data, size, work_offset, entrybuffer,
+																					sizeof(entrybuffer));
 
 	switch (rtype)
 	{
 		case mDNS::kRecordTypePTR:
 			{
-				mDNS::string_t namestr = mDNS::record_parse_ptr(data, size, record_offset, record_length, namebuffer, sizeof(namebuffer));
+				mDNS::string_t namestr = mDNS::record_parse_ptr(data, size, record_offset, record_length, namebuffer,
+																				sizeof(namebuffer));
 
-				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " PTR " <<
-							MDNS_STRING_FORMAT(namestr) << " rclass 0x" << std::hex << rclass << std::dec << " ttl " << ttl << " length " <<
-							record_length << std::endl;
+				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) <<
+							" PTR " << MDNS_STRING_FORMAT(namestr) << " rclass 0x" << std::hex << rclass << std::dec <<
+							" ttl " << ttl << " length " << record_length << std::endl;
 				release_mdns_string(namestr);
 			}
 			break;
 
 		case mDNS::kRecordTypeSRV:
 			{
-				mDNS::record_srv_t srv = mDNS::record_parse_srv(data, size, record_offset, record_length, namebuffer, sizeof(namebuffer));
+				mDNS::record_srv_t srv = mDNS::record_parse_srv(data, size, record_offset, record_length, namebuffer,
+																				sizeof(namebuffer));
 
-				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " SRV " <<
-							MDNS_STRING_FORMAT(entrystr) << " priority " << srv.priority << " weight " << srv.weight << " port " << srv.weight << std::endl;
+				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) <<
+							" SRV " << MDNS_STRING_FORMAT(entrystr) << " priority " << srv.priority << " weight " <<
+							srv.weight << " port " << srv.weight << std::endl;
 				release_mdns_string(srv.name);
 			}
 			break;
@@ -193,8 +197,8 @@ query_callback
 				mDNS::record_parse_a(data, size, record_offset, record_length, addr);
 				mDNS::string_t addrstr = ipv4_address_to_string(namebuffer, sizeof(namebuffer), addr, sizeof(addr));
 
-				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " A " <<
-							MDNS_STRING_FORMAT(addrstr) << std::endl;
+				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) <<
+							" A " << MDNS_STRING_FORMAT(addrstr) << std::endl;
 				release_mdns_string(addrstr);
 			}
 			break;
@@ -206,27 +210,30 @@ query_callback
 				mDNS::record_parse_aaaa(data, size, record_offset, record_length, addr);
 				mDNS::string_t addrstr = ipv6_address_to_string(namebuffer, sizeof(namebuffer), addr, sizeof(addr));
 
-				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " AAAA " <<
-							MDNS_STRING_FORMAT(addrstr) << std::endl;
+				std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) <<
+							" AAAA " << MDNS_STRING_FORMAT(addrstr) << std::endl;
 				release_mdns_string(addrstr);
 			}
 			break;
 
 		case mDNS::kRecordTypeTXT:
 			{
-				size_t parsed = mDNS::record_parse_txt(data, size, record_offset, record_length, txtbuffer, sizeof(txtbuffer) / sizeof(*txtbuffer));
+				size_t parsed = mDNS::record_parse_txt(data, size, record_offset, record_length, txtbuffer,
+																	sizeof(txtbuffer) / sizeof(*txtbuffer));
 
 				for (size_t itxt = 0; itxt < parsed; ++itxt)
 				{
 					if (0 == txtbuffer[itxt].value.length)
 					{
-						std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " TXT " <<
-									MDNS_STRING_FORMAT(txtbuffer[itxt].key) << std::endl;
+						std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " <<
+									MDNS_STRING_FORMAT(entrystr) << " TXT " << MDNS_STRING_FORMAT(txtbuffer[itxt].key) <<
+									std::endl;
 					}
 					else
 					{
-						std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " TXT " <<
-									MDNS_STRING_FORMAT(txtbuffer[itxt].key) << " = " << MDNS_STRING_FORMAT(txtbuffer[itxt].value) << std::endl;
+						std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " <<
+									MDNS_STRING_FORMAT(entrystr) << " TXT " << MDNS_STRING_FORMAT(txtbuffer[itxt].key) <<
+									" = " << MDNS_STRING_FORMAT(txtbuffer[itxt].value) << std::endl;
 					}
 					release_mdns_string(txtbuffer[itxt].key);
 					release_mdns_string(txtbuffer[itxt].value);
@@ -235,14 +242,15 @@ query_callback
 			break;
 
 		default:
-			std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) << " type " << rtype <<
-						" rclass 0x" << std::hex << rclass << std::dec << " ttl " << ttl << " length " << record_length << std::endl;
+			std::cout << MDNS_STRING_FORMAT(fromaddrstr) << " : " << entrytype << " " << MDNS_STRING_FORMAT(entrystr) <<
+						" type " << rtype << " rclass 0x" << std::hex << rclass << std::dec << " ttl " << ttl << " length " <<
+						record_length << std::endl;
 			break;
 
 	}
 	release_mdns_string(fromaddrstr);
 	release_mdns_string(entrystr);
-	return 0;
+	return true;
 }
 
 // Callback handling questions incoming on service sockets
@@ -322,16 +330,17 @@ service_callback
 			answer.type = mDNS::kRecordTypePTR;
 			answer.data.ptr.name = service.service;
 			// Send the answer, unicast or multicast depending on flag in query
-			std::cout << "  --> answer " << MDNS_STRING_FORMAT(answer.data.ptr.name) << " (" << (unicast ? "unicast" : "multicast") << ")" <<
-						std::endl;
+			std::cout << "  --> answer " << MDNS_STRING_FORMAT(answer.data.ptr.name) <<
+						(unicast ? " (unicast)" : " (multicast)") << std::endl;
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
-				                          		query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0, 0, 0);
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer), query_id,
+															static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer,
+															nullptr, 0, nullptr, 0);
 			}
 			else
 			{
-				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, 0, 0, 0, 0);
+				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, nullptr, 0, nullptr, 0);
 			}
 		}
 	}
@@ -371,21 +380,23 @@ service_callback
 				additional[additional_count++] = service.txt_record[ii];
 			} 
 			// Send the answer, unicast or multicast depending on flag in query
-			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_ptr.data.ptr.name) << " (" << (unicast ? "unicast" : "multicast") <<
-						")" << std::endl;
+			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_ptr.data.ptr.name) <<
+						(unicast ? " (unicast)" : " (multicast)") << std::endl;
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
-												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
-												additional, additional_count);
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer), query_id,
+															static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer,
+															nullptr, 0, additional, additional_count);
 			}
 			else
 			{
-				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, 0, 0, additional, additional_count);
+				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, nullptr, 0, additional,
+															  additional_count);
 			}
 		}
 	}
-	else if ((name.length == service.service_instance.length) && (0 == strncmp(name.str, service.service_instance.str, name.length)))
+	else if ((name.length == service.service_instance.length) &&
+				 (0 == strncmp(name.str, service.service_instance.str, name.length)))
 	{
 		if ((mDNS::kRecordTypeSRV == rtype) || (mDNS::kRecordTypeANY == rtype))
 		{
@@ -417,24 +428,26 @@ service_callback
 				additional[additional_count++] = service.txt_record[ii];
 			} 
 			// Send the answer, unicast or multicast depending on flag in query
-			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_srv.data.srv.name) << " port " << service.port << " (" <<
-						(unicast ? "unicast" : "multicast") << ")" << std::endl;
+			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_srv.data.srv.name) << " port " <<
+						service.port << (unicast ? " (unicast)" : " (multicast)") << std::endl;
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
-												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
-												additional, additional_count);
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer), query_id,
+															static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer,
+															nullptr, 0, additional, additional_count);
 			}
 			else
 			{
-				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, 0, 0, additional, additional_count);
+				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, nullptr, 0, additional,
+				                                   additional_count);
 			}
 		}
 	}
 	else if ((name.length == service.hostname_qualified.length) &&
 	           (0 == strncmp(name.str, service.hostname_qualified.str, name.length)))
 	{
-		if (((mDNS::kRecordTypeA == rtype) || (mDNS::kRecordTypeANY == rtype)) && (AF_INET == service.address_ipv4.sin_family))
+		if (((mDNS::kRecordTypeA == rtype) || (mDNS::kRecordTypeANY == rtype)) &&
+			 (AF_INET == service.address_ipv4.sin_family))
 		{
 			// The A query was for our qualified hostname (typically "<hostname>.local.") and we
 			// have an IPv4 address, answer with an A record mappiing the hostname to an IPv4
@@ -458,24 +471,26 @@ service_callback
 			}
 			// Send the answer, unicast or multicast depending on flag in query
 			mDNS::string_t addrstr = ip_address_to_string(addrbuffer, sizeof(addrbuffer),
-															reinterpret_cast<const struct sockaddr &>(service.record_a.data.a.addr),
-			    											sizeof(service.record_a.data.a.addr));
+															  reinterpret_cast<const struct sockaddr &>(service.record_a.data.a.addr),
+																		 sizeof(service.record_a.data.a.addr));
 
-			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_a.name) << " IPv4 " << MDNS_STRING_FORMAT(addrstr) << " (" <<
-						(unicast ? "unicast" : "multicast") << ")" << std::endl;
+			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_a.name) << " IPv4 " <<
+						MDNS_STRING_FORMAT(addrstr) << (unicast ? " (unicast)" : " (multicast)") << std::endl;
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
-												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
-												additional, additional_count);
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer), query_id,
+															static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer,
+															nullptr, 0, additional, additional_count);
 			}
 			else
 			{
-				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, 0, 0, additional, additional_count);
+				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, nullptr, 0, additional,
+															  additional_count);
 			}
 			release_mdns_string(addrstr);
 		}
-		else if (((mDNS::kRecordTypeAAAA == rtype) || (mDNS::kRecordTypeANY == rtype)) && (AF_INET6 == service.address_ipv6.sin6_family))
+		else if (((mDNS::kRecordTypeAAAA == rtype) || (mDNS::kRecordTypeANY == rtype)) &&
+					(AF_INET6 == service.address_ipv6.sin6_family))
 		{
 			// The AAAA query was for our qualified hostname (typically "<hostname>.local.") and we
 			// have an IPv6 address, answer with an AAAA record mappiing the hostname to an IPv6
@@ -499,20 +514,21 @@ service_callback
 			}
 			// Send the answer, unicast or multicast depending on flag in query
 			mDNS::string_t addrstr = ip_address_to_string(addrbuffer, sizeof(addrbuffer),
-																reinterpret_cast<const struct sockaddr &>(service.record_aaaa.data.aaaa.addr),
-			                         					sizeof(service.record_aaaa.data.aaaa.addr));
+														reinterpret_cast<const struct sockaddr &>(service.record_aaaa.data.aaaa.addr),
+																		 sizeof(service.record_aaaa.data.aaaa.addr));
 
-			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_aaaa.name) << " IPv6 " << MDNS_STRING_FORMAT(addrstr) << " (" <<
-						(unicast ? "unicast" : "multicast") << ")" << std::endl;
+			std::cout << "  --> answer " << MDNS_STRING_FORMAT(service.record_aaaa.name) << " IPv6 " <<
+						MDNS_STRING_FORMAT(addrstr) << (unicast ? " (unicast)" : " (multicast)") << std::endl;
 			if (unicast)
 			{
-				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer),
-												query_id, static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer, 0, 0,
-												additional, additional_count);
+				res = mDNS::query_answer_unicast(sock, &from, addrlen, sendbuffer, sizeof(sendbuffer), query_id,
+															static_cast<mDNS::record_type_t>(rtype), name.str, name.length, answer,
+															nullptr, 0, additional, additional_count);
 			}
 			else
 			{
-				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, 0, 0, additional, additional_count);
+				res = mDNS::query_answer_multicast(sock, sendbuffer, sizeof(sendbuffer), answer, nullptr, 0, additional,
+															  additional_count);
 			}
 			release_mdns_string(addrstr);
 		}
@@ -522,7 +538,7 @@ service_callback
 		}
 	}
 	release_mdns_string(name);
-	return 0;
+	return true;
 }
 
 // Open sockets for sending one-shot multicast queries from an ephemeral port
@@ -964,7 +980,8 @@ send_mdns_query
 	std::cout << "Sending mDNS query: " << service << " " << record_name << std::endl;
 	for (int isock = 0; isock < num_sockets; ++isock)
 	{
-		query_id[isock] = mDNS::query_send(sockets[isock], static_cast<mDNS::record_type_t>(work_record), service, strlen(service), buffer.get(), capacity, 0);
+		query_id[isock] = mDNS::query_send(sockets[isock], static_cast<mDNS::record_type_t>(work_record), service,
+													  strlen(service), buffer.get(), capacity, 0);
 		if (query_id[isock] < 0)
 		{
 			std::cout << "Failed to send mDNS query: " << strerror(errno) << std::endl;
@@ -1015,7 +1032,8 @@ send_mdns_query
 				}
 				if (FD_ISSET(sockets[isock], &readfs))
 				{
-					records += mDNS::query_recv(sockets[isock], buffer.get(), capacity, query_callback, user_data, query_id[isock]);
+					records += mDNS::query_recv(sockets[isock], buffer.get(), capacity, query_callback, user_data,
+														 query_id[isock]);
 				}
 				FD_SET(sockets[isock], &readfs);
 			}
@@ -1146,7 +1164,8 @@ do_setup
 	} 
 	for (int isock = 0; isock < num_sockets; ++isock)
 	{
-		mDNS::announce_multicast(sockets[isock], buffer, capacity, service.record_ptr, 0, 0, additional, additional_count);
+		mDNS::announce_multicast(sockets[isock], buffer, capacity, service.record_ptr, nullptr, 0, additional,
+										 additional_count);
 	}
 	return true;
 }
@@ -1179,7 +1198,8 @@ do_cleanup
 	} 
 	for (int isock = 0; isock < num_sockets; ++isock)
 	{
-		mDNS::goodbye_multicast(sockets[isock], buffer, capacity, service.record_ptr, 0, 0, additional, additional_count);
+		mDNS::goodbye_multicast(sockets[isock], buffer, capacity, service.record_ptr, nullptr, 0, additional,
+										additional_count);
 	}
 	free(buffer);
 	free(service_name_buffer);
@@ -1197,7 +1217,7 @@ do_cleanup
 	release_mdns_string(service.record_srv.name);	
 	release_mdns_string(service.record_srv.data.srv.name);	
 	release_mdns_string(service.record_a.name);	
-	release_mdns_string(service.record_aaaa.name);	
+	release_mdns_string(service.record_aaaa.name);
 	for (size_t ii = 0; ii < kNumTxtRecords; ++ii)
 	{
 		release_mdns_string(service.txt_record[ii].name);	
@@ -1220,7 +1240,7 @@ service_mdns
 	void *    buffer = malloc(capacity);
 	char *    service_name_buffer = nullptr;
 	bool      res = do_setup(service_name, service_port, hostname, service, num_sockets,
-						sizeof(sockets) / sizeof(*sockets), sockets, buffer, capacity, service_name_buffer);
+									 sizeof(sockets) / sizeof(*sockets), sockets, buffer, capacity, service_name_buffer);
 
 	if (res)
 	{
@@ -1356,7 +1376,8 @@ fuzz_mdns
 		mDNS::record_parse_aaaa(buffer.get(), size, offset, length, addr_ipv6);
 		offset = ((0 != size) ? (rand() % size) : 0);
 		length = ((0 != size) ? (rand() % (size - offset)) : 0);
-		mDNS::record_parse_txt(buffer.get(), size, offset, length, reintepret_cast<record_txt_t *>(strbuffer.get()), MAX_FUZZ_SIZE);
+		mDNS::record_parse_txt(buffer.get(), size, offset, length, reintepret_cast<record_txt_t *>(strbuffer.get()),
+									  MAX_FUZZ_SIZE);
 		if ((0 != ipass) && (0 == (ipass % 10000)))
 		{
 			std::cout << "Completed fuzzing pass " << ipass << std::endl;
