@@ -267,9 +267,9 @@ service_callback
 	 const void *             data,
 	 const size_t             size,
 	 const size_t             name_offset,
-	 const size_t             name_length,
-	 const size_t             record_offset,
-	 const size_t             record_length,
+	 const size_t             MDNS_UNUSED_PARAM_(name_length),
+	 const size_t             MDNS_UNUSED_PARAM_(record_offset),
+	 const size_t             MDNS_UNUSED_PARAM_(record_length),
 	 void *                   user_data)
 {
 	if (entry != mDNS::kEntryTypeQuestion)
@@ -358,10 +358,11 @@ service_callback
 			// Answer PTR record reverse mapping "<_service-name>._tcp.local." to
 			// "<hostname>.<_service-name>._tcp.local."
 			mDNS::record_t answer = service.record_ptr;
-			mDNS::record_t additional[kNumTxtRecords + 3] = { 0 };
+			mDNS::record_t additional[kNumTxtRecords + 3];
 			size_t         additional_count = 0;
 
-			// SRV record mapping "<hostname>.<_service-name>._tcp.local." to
+			memset(&additional, 0, sizeof(additional));
+            // SRV record mapping "<hostname>.<_service-name>._tcp.local." to
 			// "<hostname>.local." with port. Set weight & priority to 0.
 			additional[additional_count++] = service.record_srv;
 			// A/AAAA records mapping "<hostname>.local." to IPv4/IPv6 addresses
@@ -409,10 +410,11 @@ service_callback
 			// Answer PTR record reverse mapping "<_service-name>._tcp.local." to
 			// "<hostname>.<_service-name>._tcp.local."
 			mDNS::record_t answer = service.record_srv;
-			mDNS::record_t additional[kNumTxtRecords + 3] = { 0 };
+			mDNS::record_t additional[kNumTxtRecords + 3];
 			size_t         additional_count = 0;
 
-			// A/AAAA records mapping "<hostname>.local." to IPv4/IPv6 addresses
+			memset(&additional, 0, sizeof(additional));
+            // A/AAAA records mapping "<hostname>.local." to IPv4/IPv6 addresses
 			if (AF_INET == service.address_ipv4.sin_family)
 			{
 				additional[additional_count++] = service.record_a;
@@ -455,10 +457,11 @@ service_callback
 
 			// Answer A records mapping "<hostname>.local." to IPv4 address
 			mDNS::record_t answer = service.record_a;
-			mDNS::record_t additional[kNumTxtRecords + 3] = { 0 };
+			mDNS::record_t additional[kNumTxtRecords + 3];
 			size_t         additional_count = 0;
 
-			// AAAA record mapping "<hostname>.local." to IPv6 addresses
+			memset(&additional, 0, sizeof(additional));
+            // AAAA record mapping "<hostname>.local." to IPv6 addresses
 			if (AF_INET6 == service.address_ipv6.sin6_family)
 			{
 				additional[additional_count++] = service.record_aaaa;
@@ -498,9 +501,10 @@ service_callback
 
 			// Answer AAAA records mapping "<hostname>.local." to IPv6 address
 			mDNS::record_t answer = service.record_aaaa;
-			mDNS::record_t additional[kNumTxtRecords + 3] = { 0 };
+			mDNS::record_t additional[kNumTxtRecords + 3];
 			size_t         additional_count = 0;
 
+            memset(&additional, 0, sizeof(additional));
 			// A record mapping "<hostname>.local." to IPv4 addresses
 			if (AF_INET == service.address_ipv4.sin_family)
 			{
@@ -1146,9 +1150,10 @@ do_setup
 	service.txt_record[1].data.txt.key = MAKE_MDNS_STRING_C("other");
 	service.txt_record[1].data.txt.value = MAKE_MDNS_STRING_C("value");
 	// Send an announcement on startup of service
-	mDNS::record_t additional[kNumTxtRecords + 3] = { 0 };
+	mDNS::record_t additional[kNumTxtRecords + 3];
 	size_t         additional_count = 0;
 
+    memset(&additional, 0, sizeof(additional));
 	additional[additional_count++] = service.record_srv;
 	if (AF_INET == service.address_ipv4.sin_family)
 	{
@@ -1180,9 +1185,10 @@ do_cleanup
 	 char *       service_name_buffer)
 {
 	// Send a goodbye on end of service
-	mDNS::record_t additional[kNumTxtRecords + 3] = { 0 };
+	mDNS::record_t additional[kNumTxtRecords + 3];
 	size_t         additional_count = 0;
 
+    memset(&additional, 0, sizeof(additional));
 	additional[additional_count++] = service.record_srv;
 	if (AF_INET == service.address_ipv4.sin_family)
 	{
@@ -1233,7 +1239,7 @@ service_mdns
 	 const char * service_name,
 	 const int    service_port)
 {
-	service_t service = { 0 };
+	service_t service;
 	int       sockets[32];
 	int       num_sockets = 0;
 	size_t    capacity = 2048;
@@ -1242,7 +1248,8 @@ service_mdns
 	bool      res = do_setup(service_name, service_port, hostname, service, num_sockets,
 									 sizeof(sockets) / sizeof(*sockets), sockets, buffer, capacity, service_name_buffer);
 
-	if (res)
+	memset(&service, 0, sizeof(service));
+    if (res)
 	{
 		struct timeval timeout;
 
