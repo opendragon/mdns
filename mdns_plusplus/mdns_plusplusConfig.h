@@ -51,19 +51,19 @@
 # endif // defined(__APPLE__)
 
 /*! @brief The major part of the version number. */
-# define MDNS_PLUS_PLUS_VERSION_MAJOR_ 
+# define mdns_plusplus_VERSION_MAJOR_ 1
 
 /*! @brief The minor part of the version number. */
-# define MDNS_PLUS_PLUS_VERSION_MINOR_ 
+# define mdns_plusplus_VERSION_MINOR_ 0
 
 /*! @brief The patch part of the version number. */
-# define MDNS_PLUS_PLUS_VERSION_PATCH_ 
+# define mdns_plusplus_VERSION_PATCH_ 0
 
 /*! @brief The version number as a string. */
-# define MDNS_PLUS_PLUS_VERSION_ ""
+# define mdns_plusplus_VERSION_ "1.0.0"
 
-/* #undef MDNS_PLUS_PLUS_ChattyStart */
+/* #undef mdns_plusplus_ChattyStart */
 
-/* #undef MDNS_PLUS_PLUS_DoExplicitCheckForOK */
+/* #undef mdns_plusplus_DoExplicitCheckForOK */
 
 #endif // ! defined(ifConfig_H_)

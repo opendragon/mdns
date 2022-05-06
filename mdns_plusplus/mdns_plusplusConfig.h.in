@@ -51,19 +51,19 @@
 # endif // defined(__APPLE__)
 
 /*! @brief The major part of the version number. */
-# define MDNS_PLUS_PLUS_VERSION_MAJOR_ @MDNS_PLUS_PLUS_VERSION_MAJOR@
+# define mdns_plusplus_VERSION_MAJOR_ @mdns_plusplus_VERSION_MAJOR@
 
 /*! @brief The minor part of the version number. */
-# define MDNS_PLUS_PLUS_VERSION_MINOR_ @MDNS_PLUS_PLUS_VERSION_MINOR@
+# define mdns_plusplus_VERSION_MINOR_ @mdns_plusplus_VERSION_MINOR@
 
 /*! @brief The patch part of the version number. */
-# define MDNS_PLUS_PLUS_VERSION_PATCH_ @MDNS_PLUS_PLUS_VERSION_PATCH@
+# define mdns_plusplus_VERSION_PATCH_ @mdns_plusplus_VERSION_PATCH@
 
 /*! @brief The version number as a string. */
-# define MDNS_PLUS_PLUS_VERSION_ "@MDNS_PLUS_PLUS_VERSION@"
+# define mdns_plusplus_VERSION_ "@mdns_plusplus_VERSION@"
 
-#cmakedefine MDNS_PLUS_PLUS_ChattyStart /* Report the version numbers when launching an executable. */
+#cmakedefine mdns_plusplus_ChattyStart /* Report the version numbers when launching an executable. */
 
-#cmakedefine MDNS_PLUS_PLUS_DoExplicitCheckForOK /* Check OK responses for validity */
+#cmakedefine mdns_plusplus_DoExplicitCheckForOK /* Check OK responses for validity */
 
 #endif // ! defined(ifConfig_H_)

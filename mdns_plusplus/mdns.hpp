@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <mdns_plusplusConfig.h>
+
 #include <iomanip>
 #include <iostream>
 #include <stdint.h>

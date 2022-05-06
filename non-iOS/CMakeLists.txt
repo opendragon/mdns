@@ -123,6 +123,7 @@ install(TARGETS ${TARGET}
 
 install(FILES
         ${mdns_plusplus_SOURCE_DIR}/mdns.hpp
+        ${mdns_plusplus_SOURCE_DIR}/mdns_plusplusConfig.h
         DESTINATION ${INCLUDE_DEST}
         COMPONENT headers)
 
