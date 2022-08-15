@@ -233,6 +233,6 @@ codecovreport.json
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
-*Config.cmake
 *ConfigVersion.cmake
-
+Makefile
+mdns_example
