@@ -927,6 +927,7 @@ send_dns_sd
 				}
 			}
 		}
+        MDNS_UNUSED_VAR_(records);
 	}
 	while (res > 0);
 	for (int isock = 0; isock < num_sockets; ++isock)
@@ -1042,6 +1043,7 @@ send_mdns_query
 				FD_SET(sockets[isock], &readfs);
 			}
 		}
+        MDNS_UNUSED_VAR_(records);
 	}
 	while (res > 0);
 	for (int isock = 0; isock < num_sockets; ++isock)
