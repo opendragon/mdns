@@ -41,8 +41,12 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 set(PROJECT_NAME "mdns_plusplus")
 
 if(APPLE)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architectures for Mac OSX" FORCE)
-    #set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Deployment target for Mac OSX" FORCE)
+    execute_process(COMMAND uname -m
+                    OUTPUT_VARIABLE CPU_TYPE
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    set(CMAKE_OSX_ARCHITECTURES ${CPU_TYPE} CACHE STRING "Build architectures for Mac OSX")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Deployment target for Mac OSX")
 endif()
 
 project(${PROJECT_NAME}
