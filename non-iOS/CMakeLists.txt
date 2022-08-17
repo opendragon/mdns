@@ -44,9 +44,12 @@ if(APPLE)
     execute_process(COMMAND uname -m
                     OUTPUT_VARIABLE CPU_TYPE
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND sw_vers -productVersion
+                    OUTPUT_VARIABLE SYS_VERSION
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     set(CMAKE_OSX_ARCHITECTURES ${CPU_TYPE} CACHE STRING "Build architectures for Mac OSX")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Deployment target for Mac OSX")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET ${SYS_VERSION} CACHE STRING "Deployment target for Mac OSX")
 endif()
 
 project(${PROJECT_NAME}
