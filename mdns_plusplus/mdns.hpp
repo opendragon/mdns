@@ -524,6 +524,16 @@ make_mdns_string
 	return result;
 }
 
+static std::string
+mdns_string_to_std_string
+    (const mDNS::string_t & inString)
+{
+    std::string outString(inString.str);
+
+    outString.resize(inString.length);
+    return outString;
+}
+
 static void
 release_mdns_string
 	(mDNS::string_t & inString)

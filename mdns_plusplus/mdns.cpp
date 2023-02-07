@@ -1096,13 +1096,13 @@ do_setup
 	mDNS::string_t service_string = make_mdns_string(service_name_buffer);
 	mDNS::string_t hostname_string = make_mdns_string(hostname);
 	// Build the service instance "<hostname>.<_service-name>._tcp.local." string
-	std::string    service_instance_buffer(hostname_string.str);
+	std::string    service_instance_buffer(mdns_string_to_std_string(hostname_string));
 
 	service_instance_buffer += ".";
 	service_instance_buffer += service_string.str;
 	mDNS::string_t service_instance_string = make_mdns_string(service_instance_buffer.c_str());
 	// Build the "<hostname>.local." string
-	std::string    qualified_hostname_buffer(hostname_string.str);
+	std::string    qualified_hostname_buffer(mdns_string_to_std_string(hostname_string));
 
 	qualified_hostname_buffer += ".local.";
 	mDNS::string_t hostname_qualified_string = make_mdns_string(qualified_hostname_buffer.c_str());
