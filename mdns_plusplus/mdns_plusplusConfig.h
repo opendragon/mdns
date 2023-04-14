@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 
 #if (! defined(mdns_plusplusConfig_H_))
-# define ifConfig_H_ /* Header guard */
+# define mdns_plusplusConfig_H_ /* Header guard */
 
 # if defined(__APPLE__)
 #  pragma clang diagnostic push
@@ -66,4 +66,4 @@
 
 /* #undef mdns_plusplus_DoExplicitCheckForOK */
 
-#endif // ! defined(ifConfig_H_)
+#endif // ! defined(mdns_plusplusConfig_H_)
