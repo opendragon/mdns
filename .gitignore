@@ -237,3 +237,4 @@ cmake_install.cmake
 CPack*Config.cmake
 Makefile
 mdns_example
+mdns_plusplusConfig.h
