@@ -62,8 +62,6 @@
 /*! @brief The version number as a string. */
 # define mdns_plusplus_VERSION_ "@mdns_plusplus_VERSION@"
 
-#cmakedefine mdns_plusplus_ChattyStart /* Report the version numbers when launching an executable. */
-
-#cmakedefine mdns_plusplus_DoExplicitCheckForOK /* Check OK responses for validity */
+#cmakedefine mdns_plusplus_LogActivity /* Print activity to standard error */
 
 #endif // ! defined(mdns_plusplusConfig_H_)

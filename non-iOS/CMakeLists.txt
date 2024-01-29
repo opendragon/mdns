@@ -102,9 +102,7 @@ else()
     set(WIN64 OFF)
 endif()
 
-option(mdns_plusplus_ChattyStart "Report the version numbers when launching an executable")
-
-option(mdns_plusplus_DoExplicitCheckForOK "Check OK responses for validity")
+option(mdns_plusplus_LogActivity "Print activity to standard error")
 
 # Add the IF target path so that IF can be found
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}")

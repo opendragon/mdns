@@ -591,19 +591,22 @@ static int
 mDNS::socket_open_ipv4
 	(const struct sockaddr_in & saddr)
 {
-	int sock = static_cast<int>(socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP));
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_open_ipv4 enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+    int sock = static_cast<int>(socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP));
 
-	if (0 > sock)
-	{
-		return -1;
-
-	}
-	if (! mDNS::socket_setup_ipv4(sock, saddr))
-	{
-		mDNS::socket_close(sock);
-		return -1;
-
-	}
+    if (0 <= sock)
+    {
+        if (! mDNS::socket_setup_ipv4(sock, saddr))
+        {
+            mDNS::socket_close(sock);
+            sock = -1;
+        }
+    }
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_open_ipv4 exit --> " << sock << "\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	return sock;
 }
 
@@ -612,6 +615,9 @@ mDNS::socket_setup_ipv4
 	(const int                  sock,
 	 const struct sockaddr_in & saddr)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_setup_ipv4 enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	unsigned char  ttl = 1;
 	unsigned char  loopback = 1;
 	unsigned int   reuseaddr = 1;
@@ -628,6 +634,9 @@ mDNS::socket_setup_ipv4
 	req.imr_interface = saddr.sin_addr;
 	if (0 != setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char *>(&req), sizeof(req)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_ADD_MEMBERSHIP) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -641,6 +650,9 @@ mDNS::socket_setup_ipv4
 #endif /* not defined(_WIN32) */
 	if (0 != ::bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv4 exit: ::bind() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -653,6 +665,9 @@ mDNS::socket_setup_ipv4
 
 	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 #endif /* not defined(_WIN32) */
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_setup_ipv4 exit\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	return true;
 }
 
@@ -660,19 +675,22 @@ static int
 mDNS::socket_open_ipv6
 	(const struct sockaddr_in6 & saddr)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_open_ipv6 enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	int sock = static_cast<int>(socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP));
 
-	if (sock < 0)
+	if (sock >= 0)
 	{
-		return -1;
-
+        if (! mDNS::socket_setup_ipv6(sock, saddr))
+        {
+            mDNS::socket_close(sock);
+            sock = -1;
+        }
 	}
-	if (! mDNS::socket_setup_ipv6(sock, saddr))
-	{
-		mDNS::socket_close(sock);
-		return -1;
-
-	}
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_open_ipv6 exit --> " << sock << "\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	return sock;
 }
 
@@ -681,6 +699,9 @@ mDNS::socket_setup_ipv6
 	(const int                   sock,
 	 const struct sockaddr_in6 & saddr)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_setup_ipv6 enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	int              hops = 1;
 	unsigned int     loopback = 1;
 	unsigned int     reuseaddr = 1;
@@ -698,6 +719,9 @@ mDNS::socket_setup_ipv6
 	req.ipv6mr_multiaddr.s6_addr[15] = 0xFB;
 	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char *>(&req), sizeof(req)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_JOIN_GROUP) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -712,6 +736,9 @@ mDNS::socket_setup_ipv6
 #endif /* not defined(_WIN32) */
 	if (0 != ::bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: ::bind() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -724,6 +751,9 @@ mDNS::socket_setup_ipv6
 
 	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 #endif /* not defined(_WIN32) */
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_setup_ipv6 exit\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	return true;
 }
 
@@ -731,6 +761,9 @@ static void
 mDNS::socket_close
 	(const int sock)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::socket_close enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 #if defined(_WIN32)
 	closesocket(sock);
 #else /* not defined(_WIN32) */
@@ -1171,6 +1204,9 @@ mdns_records_parse
 	 mDNS::record_callback_fn callback,
 	 void *                   user_data)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::mdns_records_parse enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	size_t parsed = 0;
 
 	for (size_t ii = 0; ii < records; ++ii)
@@ -1181,6 +1217,9 @@ mdns_records_parse
 		if ((offset + (sizeof(mDNS::rtype_t_) + sizeof(mDNS::rclass_t_) + sizeof(mDNS::ttl_t_) +sizeof(mDNS::leng_t_))) >
 				size)
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::mdns_records_parse exit: " << parsed << "\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			return parsed;
 
 		}
@@ -1207,6 +1246,9 @@ mdns_records_parse
 		}
 		offset += length;
 	}
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::mdns_records_parse exit: " << parsed << "\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	return parsed;
 }
 
@@ -1222,6 +1264,9 @@ mdns_unicast_send
 						static_cast<mDNS::size_t_>(size), 0, reinterpret_cast<const struct sockaddr *>(address),
 						static_cast<socklen_t>(address_size)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::mdns_unicast_send exit: sendto() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -1242,6 +1287,9 @@ mdns_multicast_send
 
 	if (0 != getsockname(sock, saddr, &saddrlen))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::mdns_multicast_send exit: getsockname() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -1273,6 +1321,9 @@ mdns_multicast_send
 	}
 	if (0 > sendto(sock, reinterpret_cast<const char *>(buffer), static_cast<mDNS::size_t_>(size), 0, saddr, saddrlen))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::mdns_multicast_send exit: sendto() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -1326,6 +1377,9 @@ mDNS::discovery_recv
 
 	if (0 >= ret)
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::discovery_recv exit: recvfrom() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
 	}
@@ -1342,6 +1396,9 @@ mDNS::discovery_recv
 	// According to RFC 6762 the query ID MUST match the sent query ID (which is 0 in our case)
 	if ((0 != query_id) || (flags != 0x8400))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::discovery_recv exit: unexpected reply\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;  // Not a reply to our question
 
 	}
@@ -1363,6 +1420,9 @@ mDNS::discovery_recv
 		if (! mDNS::mDNSPrivate::string_equal(buffer, data_size, ofs, mdns_services_query,
 														  sizeof(mdns_services_query), verify_ofs))
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::discovery_recv exit: question mismatch\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			return 0;
 
 		}
@@ -1373,6 +1433,9 @@ mDNS::discovery_recv
 		// Make sure we get a reply based on our PTR question for class IN
 		if ((rtype != kRecordTypePTR) || ((rclass & 0x7FFF) != kClassTypeIn))
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::discovery_recv exit: mismatched reply\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			return 0;
 
 		}
@@ -1390,6 +1453,9 @@ mDNS::discovery_recv
 		if ((ofs + (sizeof(mDNS::rtype_t_) + sizeof(mDNS::rclass_t_) + sizeof(mDNS::ttl_t_) + sizeof(mDNS::leng_t_))) >
 				data_size)
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::discovery_recv exit: insufficient room\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			return records;
 
 		}
@@ -1403,6 +1469,9 @@ mDNS::discovery_recv
 
 		if (static_cast<size_t>(length) > (data_size - ofs))
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::discovery_recv exit: length too great\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			return 0;
 
 		}
@@ -1414,6 +1483,9 @@ mDNS::discovery_recv
 				(! callback(sock, saddr, addrlen, kEntryTypeAnswer, query_id, rtype, rclass, ttl, buffer, data_size,
 								name_offset, name_length, ofs, length, user_data)))
 			{
+#if defined(mdns_plusplus_LogActivity)
+                std::cerr << "mDNS::discovery_recv exit: callback() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 				return records;
 
 			}
@@ -1463,6 +1535,9 @@ mDNS::socket_listen
 
 	if (0 >= ret)
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_listen exit: recvfrom() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
 	}
@@ -1513,6 +1588,9 @@ mDNS::socket_listen
 		// Make sure we get a question of class IN
 		if ((kClassTypeIn != class_without_flushbit) && (kClassTypeAny != class_without_flushbit))
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::socket_listen exit: wrong class for question\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			break;
 
 		}
@@ -1526,6 +1604,9 @@ mDNS::socket_listen
 			(! callback(sock, saddr, addrlen, kEntryTypeQuestion, query_id, rtype, rclass, 0, buffer, data_size,
 							question_offset, length, question_offset, length, user_data)))
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::socket_listen exit: callback() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			break;
 
 		}
@@ -1545,6 +1626,9 @@ mDNS::query_send
 {
 	if (capacity < (17 + length))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::query_send exit: insufficient capacity\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return -1;
 
 	}
@@ -1595,6 +1679,9 @@ mDNS::query_send
 
 	if (! mdns_multicast_send(sock, buffer, static_cast<size_t>(tosend)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::query_send exit: mdns_multicase_send() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return -1;
 
 	}
@@ -1623,6 +1710,9 @@ mDNS::query_recv
 
 	if (0 >= ret)
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::query_recv exit: recvfrom() failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
 	}
@@ -1640,11 +1730,17 @@ mDNS::query_recv
 
 	if ((only_query_id > 0) && (query_id != only_query_id))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::query_recv exit: wrong reply\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;  // Not a reply to the wanted one-shot query
 
 	}
 	if (questions > 1)
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::query_recv exit: too many questions\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
 	}
@@ -1744,6 +1840,9 @@ mdns_answer_add_record_header
 
 	if (remain < (sizeof(record.type) + sizeof(record.rclass) + sizeof(record.ttl) + sizeof(mDNS::leng_t_)))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::mdns_answer_add_record_header exit: insufficient capacity\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return nullptr;
 
 	}
@@ -1790,6 +1889,9 @@ mdns_answer_add_record
 			if (remain <= (sizeof(record.data.srv.priority) + sizeof(record.data.srv.weight) +
 								sizeof(record.data.srv.port)))
 			{
+#if defined(mdns_plusplus_LogActivity)
+                std::cerr << "mDNS::mdns_answer_add_record exit: insufficient capacity for SRV record\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 				return nullptr;
 
 			}
@@ -1803,6 +1905,9 @@ mdns_answer_add_record
 		case mDNS::kRecordTypeA:
 			if (remain < sizeof(record.data.a.addr.sin_addr.s_addr))
 			{
+#if defined(mdns_plusplus_LogActivity)
+                std::cerr << "mDNS::mdns_answer_add_record exit: insufficient capacity for A record\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 				return nullptr;
 
 			}
@@ -1813,6 +1918,9 @@ mdns_answer_add_record
 		case mDNS::kRecordTypeAAAA:
 			if (remain < sizeof(record.data.aaaa.addr.sin6_addr))
 			{
+#if defined(mdns_plusplus_LogActivity)
+                std::cerr << "mDNS::mdns_answer_add_record exit: insufficient capacity for AAAA record\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 				return nullptr;
 
 			}
@@ -1893,7 +2001,7 @@ mdns_answer_add_txt_record
 			record_length = MDNS_POINTER_OFFSET(data, - static_cast<int>(sizeof(mDNS::leng_t_)));
 			record_data = data;
 		}
-		// TXT strings are unlikely to be shared, just make then raw. Also need one byte for
+		// TXT strings are unlikely to be shared, just make them raw. Also need one byte for
 		// termination, thus the <= check
 		size_t string_length = record.data.txt.key.length + record.data.txt.value.length + 1;
 
@@ -1905,6 +2013,9 @@ mdns_answer_add_txt_record
 		remain = capacity - MDNS_POINTER_DIFF(data, buffer);
 		if ((remain <= string_length) || (string_length > 0x3FFF))
 		{
+#if defined(mdns_plusplus_LogActivity)
+            std::cerr << "mDNS::mdns_answer_add_txt_record exit: insufficient capacity\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 			return nullptr;
 
 		}
@@ -1968,6 +2079,9 @@ mDNS::query_answer_unicast
 {
 	if (capacity < (sizeof(header_t) + 32 + 4))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::query_answer_unicast exit: insufficient capacity\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -2042,6 +2156,9 @@ mdns_answer_multicast_rclass_ttl
 {
 	if (capacity < (sizeof(mDNS::header_t) + 32 + 4))
 	{
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::mdns_answer_multicast_rclass_ttl exit: insufficient capacity\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
 	}
@@ -2164,6 +2281,9 @@ mDNS::record_parse_ptr
 	 char *       strbuffer,
 	 const size_t capacity)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::record_parse_ptr enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	// PTR record is just a string
 	if ((size >= (offset + length)) && (length >= 2))
 	{
@@ -2184,6 +2304,9 @@ mDNS::record_parse_srv
 	 char *       strbuffer,
 	 const size_t capacity)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::record_parse_srv enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	size_t       work_offset = offset;
 	record_srv_t srv;
 
@@ -2216,6 +2339,9 @@ mDNS::record_parse_a
 	 const size_t         length,
 	 struct sockaddr_in & addr)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::record_parse_a enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 #if defined(__APPLE__)
@@ -2235,6 +2361,9 @@ mDNS::record_parse_aaaa
 	 const size_t          length,
 	 struct sockaddr_in6 & addr)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::record_parse_aaaa enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	memset(&addr, 0, sizeof(addr));
 	addr.sin6_family = AF_INET6;
 #if defined(__APPLE__)
@@ -2255,6 +2384,9 @@ mDNS::record_parse_txt
 	 record_txt_t * records,
 	 const size_t   capacity)
 {
+#if defined(mdns_plusplus_LogActivity)
+    std::cerr << "mDNS::record_parse_txt enter\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
 	size_t       work_offset = offset;
 	size_t       parsed = 0;
 	const char * strdata;
