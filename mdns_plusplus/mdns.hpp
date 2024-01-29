@@ -623,12 +623,40 @@ mDNS::socket_setup_ipv4
 	unsigned int   reuseaddr = 1;
 	struct ip_mreq req;
 
-	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr));
+	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(SO_REUSEADDR) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 #if defined(SO_REUSEPORT)
-	setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr));
+	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
+    {
+ #if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(SO_REUSEPORT) failure\n";
+ #endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 #endif /* defined(SO_REUSEPORT) */
-	setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, reinterpret_cast<const char *>(&ttl), sizeof(ttl));
-	setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, reinterpret_cast<const char *>(&loopback), sizeof(loopback));
+	if (0 != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, reinterpret_cast<const char *>(&ttl), sizeof(ttl)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+       std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_TTL) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+       return false;
+
+    }
+	if (0 != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, reinterpret_cast<const char *>(&loopback), sizeof(loopback)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+       std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_LOOP) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+       return false;
+
+    }
 	memset(&req, 0, sizeof(req));
 	req.imr_multiaddr.s_addr = htonl((static_cast<uint32_t>(224U) << 24U) | static_cast<uint32_t>(251U));
 	req.imr_interface = saddr.sin_addr;
@@ -643,8 +671,15 @@ mDNS::socket_setup_ipv4
 	struct sockaddr_in sock_addr;
 
 	memcpy(&sock_addr, &saddr, sizeof(sockaddr));
-	setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<const char *>(&sock_addr.sin_addr),
-					sizeof(sock_addr.sin_addr));
+	if (0 != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<const char *>(&sock_addr.sin_addr),
+					sizeof(sock_addr.sin_addr)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_IF) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 #if (! defined(_WIN32))
 	sock_addr.sin_addr.s_addr = INADDR_ANY;
 #endif /* not defined(_WIN32) */
@@ -707,12 +742,40 @@ mDNS::socket_setup_ipv6
 	unsigned int     reuseaddr = 1;
 	struct ipv6_mreq req;
 
-	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr));
+	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(SO_REUSEADDR) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 #if defined(SO_REUSEPORT)
-	setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr));
+	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
+    {
+ #if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(SO_REUSEPORT) failure\n";
+ #endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 #endif /* defined(SO_REUSEPORT) */
-	setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, reinterpret_cast<const char *>(&hops), sizeof(hops));
-	setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, reinterpret_cast<const char *>(&loopback), sizeof(loopback));
+	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, reinterpret_cast<const char *>(&hops), sizeof(hops)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_HOPS) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
+	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, reinterpret_cast<const char *>(&loopback), sizeof(loopback)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_LOOP) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 	memset(&req, 0, sizeof(req));
 	req.ipv6mr_multiaddr.s6_addr[0] = 0xFF;
 	req.ipv6mr_multiaddr.s6_addr[1] = 0x02;
@@ -730,7 +793,14 @@ mDNS::socket_setup_ipv6
 	memcpy(&sock_addr, &saddr, sizeof(sock_addr));
 	unsigned int ifindex = 0;
 
-	setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<const char *>(&ifindex), sizeof(ifindex));
+	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<const char *>(&ifindex), sizeof(ifindex)))
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_IF) failure\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+        return false;
+
+    }
 #if (! defined(_WIN32))
 	sock_addr.sin6_addr = in6addr_any;
 #endif /* not defined(_WIN32) */
