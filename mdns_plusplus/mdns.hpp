@@ -16,6 +16,7 @@
 
 #include <mdns_plusplusConfig.h>
 
+#include <errno.h>
 #include <iomanip>
 #include <iostream>
 #include <stdint.h>
@@ -626,7 +627,7 @@ mDNS::socket_setup_ipv4
 	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
     {
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(SO_REUSEADDR) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(SO_REUSEADDR) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -635,7 +636,7 @@ mDNS::socket_setup_ipv4
 	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
     {
  #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(SO_REUSEPORT) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(SO_REUSEPORT) failure [" << strerror(errno) << "]\n";
  #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -644,7 +645,7 @@ mDNS::socket_setup_ipv4
 	if (0 != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, reinterpret_cast<const char *>(&ttl), sizeof(ttl)))
     {
 #if defined(mdns_plusplus_LogActivity)
-       std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_TTL) failure\n";
+       std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_TTL) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
        return false;
 
@@ -652,7 +653,7 @@ mDNS::socket_setup_ipv4
 	if (0 != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, reinterpret_cast<const char *>(&loopback), sizeof(loopback)))
     {
 #if defined(mdns_plusplus_LogActivity)
-       std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_LOOP) failure\n";
+       std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_LOOP) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
        return false;
 
@@ -663,7 +664,7 @@ mDNS::socket_setup_ipv4
 	if (0 != setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char *>(&req), sizeof(req)))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_ADD_MEMBERSHIP) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_ADD_MEMBERSHIP) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -675,7 +676,7 @@ mDNS::socket_setup_ipv4
 					sizeof(sock_addr.sin_addr)))
     {
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_IF) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_IF) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -686,7 +687,7 @@ mDNS::socket_setup_ipv4
 	if (0 != ::bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv4 exit: ::bind() failure\n";
+        std::cerr << "mDNS::socket_setup_ipv4 exit: ::bind() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -745,7 +746,7 @@ mDNS::socket_setup_ipv6
 	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
     {
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(SO_REUSEADDR) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(SO_REUSEADDR) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -754,7 +755,7 @@ mDNS::socket_setup_ipv6
 	if (0 != setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&reuseaddr), sizeof(reuseaddr)))
     {
  #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(SO_REUSEPORT) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(SO_REUSEPORT) failure [" << strerror(errno) << "]\n";
  #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -763,7 +764,7 @@ mDNS::socket_setup_ipv6
 	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, reinterpret_cast<const char *>(&hops), sizeof(hops)))
     {
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_HOPS) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_HOPS) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -771,7 +772,7 @@ mDNS::socket_setup_ipv6
 	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, reinterpret_cast<const char *>(&loopback), sizeof(loopback)))
     {
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_LOOP) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_LOOP) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -783,7 +784,7 @@ mDNS::socket_setup_ipv6
 	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char *>(&req), sizeof(req)))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_JOIN_GROUP) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_JOIN_GROUP) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -796,7 +797,7 @@ mDNS::socket_setup_ipv6
 	if (0 != setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, reinterpret_cast<const char *>(&ifindex), sizeof(ifindex)))
     {
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_IF) failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: setsockopt(IPV6_MULTICAST_IF) failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
         return false;
 
@@ -807,7 +808,7 @@ mDNS::socket_setup_ipv6
 	if (0 != ::bind(sock, reinterpret_cast<struct sockaddr *>(&sock_addr), sizeof(sock_addr)))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_setup_ipv6 exit: ::bind() failure\n";
+        std::cerr << "mDNS::socket_setup_ipv6 exit: ::bind() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -1335,7 +1336,7 @@ mdns_unicast_send
 						static_cast<socklen_t>(address_size)))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::mdns_unicast_send exit: sendto() failure\n";
+        std::cerr << "mDNS::mdns_unicast_send exit: sendto() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -1358,7 +1359,7 @@ mdns_multicast_send
 	if (0 != getsockname(sock, saddr, &saddrlen))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::mdns_multicast_send exit: getsockname() failure\n";
+        std::cerr << "mDNS::mdns_multicast_send exit: getsockname() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -1392,7 +1393,7 @@ mdns_multicast_send
 	if (0 > sendto(sock, reinterpret_cast<const char *>(buffer), static_cast<mDNS::size_t_>(size), 0, saddr, saddrlen))
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::mdns_multicast_send exit: sendto() failure\n";
+        std::cerr << "mDNS::mdns_multicast_send exit: sendto() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return false;
 
@@ -1448,7 +1449,7 @@ mDNS::discovery_recv
 	if (0 >= ret)
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::discovery_recv exit: recvfrom() failure\n";
+        std::cerr << "mDNS::discovery_recv exit: recvfrom() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
@@ -1606,7 +1607,7 @@ mDNS::socket_listen
 	if (0 >= ret)
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::socket_listen exit: recvfrom() failure\n";
+        std::cerr << "mDNS::socket_listen exit: recvfrom() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
@@ -1781,7 +1782,7 @@ mDNS::query_recv
 	if (0 >= ret)
 	{
 #if defined(mdns_plusplus_LogActivity)
-        std::cerr << "mDNS::query_recv exit: recvfrom() failure\n";
+        std::cerr << "mDNS::query_recv exit: recvfrom() failure [" << strerror(errno) << "]\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
 		return 0;
 
