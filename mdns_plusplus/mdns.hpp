@@ -311,7 +311,7 @@ namespace mDNS
 
 	//! Send a variable unicast mDNS query answer to any question with variable number of records to the
 	//! given address. Use the top bit of the query class field (MDNS_UNICAST_RESPONSE) in the query
-	//! recieved to determine if the answer should be sent unicast (bit set) or multicast (bit not set).
+	//! received to determine if the answer should be sent unicast (bit set) or multicast (bit not set).
 	//! Buffer must be 32 bit aligned. The record type and name should match the data from the query
 	//! received. Returns true if success, or false if error.
 	static bool
@@ -332,7 +332,7 @@ namespace mDNS
 		 const size_t        additional_count);
 
 	//! Send a variable multicast mDNS query answer to any question with variable number of records. Use
-	//! the top bit of the query class field (MDNS_UNICAST_RESPONSE) in the query recieved to determine
+	//! the top bit of the query class field (MDNS_UNICAST_RESPONSE) in the query received to determine
 	//! if the answer should be sent unicast (bit set) or multicast (bit not set). Buffer must be 32 bit
 	//! aligned. Returns true if success, or false if error.
 	static bool
