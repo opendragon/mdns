@@ -488,8 +488,9 @@ namespace mDNS
 
 	}; /* mDNSPrivate */
 
-
 }; /* mDNS */
+
+namespace mDNSP = mDNS::mDNSPrivate;
 
 static mDNS::string_t
 make_mdns_string
@@ -605,6 +606,12 @@ mDNS::socket_open_ipv4
             sock = -1;
         }
     }
+    else
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv4: socket() failure [" << strerror(errno) << "]\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+    }
 #if defined(mdns_plusplus_LogActivity)
     std::cerr << "mDNS::socket_open_ipv4 exit --> " << sock << "\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
@@ -671,9 +678,9 @@ mDNS::socket_setup_ipv4
 	}
 	struct sockaddr_in sock_addr;
 
-	memcpy(&sock_addr, &saddr, sizeof(sockaddr));
+	memcpy(&sock_addr, &saddr, sizeof(sock_addr));
 	if (0 != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<const char *>(&sock_addr.sin_addr),
-					sizeof(sock_addr.sin_addr)))
+                        sizeof(sock_addr.sin_addr)))
     {
 #if defined(mdns_plusplus_LogActivity)
         std::cerr << "mDNS::socket_setup_ipv4 exit: setsockopt(IP_MULTICAST_IF) failure [" << strerror(errno) << "]\n";
@@ -724,6 +731,12 @@ mDNS::socket_open_ipv6
             sock = -1;
         }
 	}
+    else
+    {
+#if defined(mdns_plusplus_LogActivity)
+        std::cerr << "mDNS::socket_setup_ipv6: socket() failure [" << strerror(errno) << "]\n";
+#endif /* defined(mdns_plusplus_LogActivity) */
+    }
 #if defined(mdns_plusplus_LogActivity)
     std::cerr << "mDNS::socket_open_ipv6 exit --> " << sock << "\n";
 #endif /* defined(mdns_plusplus_LogActivity) */
@@ -905,7 +918,7 @@ mdns_get_next_substring
 }
 
 static bool
-mDNS::mDNSPrivate::string_skip
+mDNSP::string_skip
 	(const void * buffer,
 	 const size_t size,
 	 size_t &     offset)
@@ -936,7 +949,7 @@ mDNS::mDNSPrivate::string_skip
 }
 
 static bool
-mDNS::mDNSPrivate::string_equal
+mDNSP::string_equal
 	(const void * buffer_lhs,
 	 const size_t size_lhs,
 	 size_t &     ofs_lhs,
@@ -968,8 +981,8 @@ mDNS::mDNSPrivate::string_equal
 
 		}
 		if (0 != strncasecmp(reinterpret_cast<const char *>(MDNS_POINTER_OFFSET_CONST(buffer_rhs, rhs_substr.offset)),
-									reinterpret_cast<const char *>(MDNS_POINTER_OFFSET_CONST(buffer_lhs, lhs_substr.offset)),
-									rhs_substr.length))
+                             reinterpret_cast<const char *>(MDNS_POINTER_OFFSET_CONST(buffer_lhs, lhs_substr.offset)),
+                             rhs_substr.length))
 		{
 			return false;
 
@@ -1000,7 +1013,7 @@ mDNS::mDNSPrivate::string_equal
 }
 
 static mDNS::string_t
-mDNS::mDNSPrivate::string_extract
+mDNSP::string_extract
 	(const void * buffer,
 	 const size_t size,
 	 size_t &     offset,
@@ -1051,7 +1064,7 @@ mDNS::mDNSPrivate::string_extract
 }
 
 static size_t
-mDNS::mDNSPrivate::string_table_find
+mDNSP::string_table_find
 	(const mDNS::string_table_t & string_table,
 	 const void *                 buffer,
 	 const size_t                 capacity,
@@ -1083,7 +1096,7 @@ mDNS::mDNSPrivate::string_table_find
 		offset += first_length + 1;
 		while (offset < total_length)
 		{
-			size_t dot_pos = mDNS::mDNSPrivate::string_find(str, total_length, '.', offset);
+			size_t dot_pos = mDNSP::string_find(str, total_length, '.', offset);
 
 			if (MDNS_INVALID_POS == dot_pos)
 			{
@@ -1133,7 +1146,7 @@ mdns_string_table_add
 }
 
 static size_t
-mDNS::mDNSPrivate::string_find
+mDNSP::string_find
 	(const char * str,
 	 const size_t length,
 	 const char   cc,
@@ -1169,7 +1182,7 @@ mdns_string_make_ref
 }
 
 static void *
-mDNS::mDNSPrivate::string_make
+mDNSP::string_make
 	(void *                 buffer,
 	 const size_t           capacity,
 	 void *                 data,
@@ -1187,12 +1200,12 @@ mDNS::mDNSPrivate::string_make
 	}
 	while (last_pos < work_length)
 	{
-		size_t pos = mDNS::mDNSPrivate::string_find(name, work_length, '.', last_pos);
+		size_t pos = mDNSP::string_find(name, work_length, '.', last_pos);
 		size_t sub_length = ((pos != MDNS_INVALID_POS) ? pos : work_length) - last_pos;
 		size_t total_length = work_length - last_pos;
-		size_t ref_offset = mDNS::mDNSPrivate::string_table_find(string_table, buffer, capacity,
-													reinterpret_cast<char *>(const_cast<void *>(MDNS_POINTER_OFFSET_CONST(name, last_pos))),
-													sub_length, total_length);
+		size_t ref_offset = mDNSP::string_table_find(string_table, buffer, capacity,
+                                                     reinterpret_cast<char *>(const_cast<void *>(MDNS_POINTER_OFFSET_CONST(name, last_pos))),
+                                                     sub_length, total_length);
 
 		if (ref_offset != MDNS_INVALID_POS)
 		{
@@ -1221,7 +1234,7 @@ mDNS::mDNSPrivate::string_make
 }
 
 static void *
-mDNS::mDNSPrivate::string_make
+mDNSP::string_make
 	(void *       buffer,
 	 const size_t capacity,
 	 void *       data,
@@ -1284,9 +1297,8 @@ mdns_records_parse
 	{
 		size_t name_offset = offset;
 
-		mDNS::mDNSPrivate::string_skip(buffer, size, offset);
-		if ((offset + (sizeof(mDNS::rtype_t_) + sizeof(mDNS::rclass_t_) + sizeof(mDNS::ttl_t_) +sizeof(mDNS::leng_t_))) >
-				size)
+		mDNSP::string_skip(buffer, size, offset);
+		if ((offset + (sizeof(mDNS::rtype_t_) + sizeof(mDNS::rclass_t_) + sizeof(mDNS::ttl_t_) +sizeof(mDNS::leng_t_))) > size)
 		{
 #if defined(mdns_plusplus_LogActivity)
             std::cerr << "mDNS::mdns_records_parse exit: " << parsed << "\n";
@@ -1331,9 +1343,8 @@ mdns_unicast_send
 	 const void * buffer,
 	 const size_t size)
 {
-	if (0 > sendto(sock, reinterpret_cast<const char *>(buffer),
-						static_cast<mDNS::size_t_>(size), 0, reinterpret_cast<const struct sockaddr *>(address),
-						static_cast<socklen_t>(address_size)))
+	if (0 > sendto(sock, reinterpret_cast<const char *>(buffer), static_cast<mDNS::size_t_>(size), 0,
+                   reinterpret_cast<const struct sockaddr *>(address), static_cast<socklen_t>(address_size)))
 	{
 #if defined(mdns_plusplus_LogActivity)
         std::cerr << "mDNS::mdns_unicast_send exit: sendto() failure [" << strerror(errno) << "]\n";
@@ -1443,8 +1454,7 @@ mDNS::discovery_recv
 #if defined(__APPLE__)
 	saddr.sa_len = sizeof(addr);
 #endif /* defined(__APPLE__) */
-	mDNS::ssize_t_ ret = recvfrom(sock, reinterpret_cast<char *>(buffer), static_cast<mDNS::size_t_>(capacity), 0,
-											&saddr, &addrlen);
+	mDNS::ssize_t_ ret = recvfrom(sock, reinterpret_cast<char *>(buffer), static_cast<mDNS::size_t_>(capacity), 0, &saddr, &addrlen);
 
 	if (0 >= ret)
 	{
@@ -1488,8 +1498,7 @@ mDNS::discovery_recv
 		size_t verify_ofs = 12;
 
 		// Verify it's our question, _services._dns-sd._udp.local.
-		if (! mDNS::mDNSPrivate::string_equal(buffer, data_size, ofs, mdns_services_query,
-														  sizeof(mdns_services_query), verify_ofs))
+		if (! mDNSP::string_equal(buffer, data_size, ofs, mdns_services_query, sizeof(mdns_services_query), verify_ofs))
 		{
 #if defined(mdns_plusplus_LogActivity)
             std::cerr << "mDNS::discovery_recv exit: question mismatch\n";
@@ -1517,12 +1526,10 @@ mDNS::discovery_recv
 		size_t verify_ofs = 12;
 		// Verify it's an answer to our question, _services._dns-sd._udp.local.
 		size_t name_offset = ofs;
-		bool   is_answer = mDNS::mDNSPrivate::string_equal(buffer, data_size, ofs, mdns_services_query,
-																			sizeof(mdns_services_query), verify_ofs);
+		bool   is_answer = mDNSP::string_equal(buffer, data_size, ofs, mdns_services_query, sizeof(mdns_services_query), verify_ofs);
 		size_t name_length = ofs - name_offset;
 
-		if ((ofs + (sizeof(mDNS::rtype_t_) + sizeof(mDNS::rclass_t_) + sizeof(mDNS::ttl_t_) + sizeof(mDNS::leng_t_))) >
-				data_size)
+		if ((ofs + (sizeof(mDNS::rtype_t_) + sizeof(mDNS::rclass_t_) + sizeof(mDNS::ttl_t_) + sizeof(mDNS::leng_t_))) > data_size)
 		{
 #if defined(mdns_plusplus_LogActivity)
             std::cerr << "mDNS::discovery_recv exit: insufficient room\n";
@@ -1551,8 +1558,8 @@ mDNS::discovery_recv
 			++records;
 			ofs = MDNS_POINTER_DIFF(data, buffer);
 			if ((nullptr != callback) &&
-				(! callback(sock, saddr, addrlen, kEntryTypeAnswer, query_id, rtype, rclass, ttl, buffer, data_size,
-								name_offset, name_length, ofs, length, user_data)))
+				(! callback(sock, saddr, addrlen, kEntryTypeAnswer, query_id, rtype, rclass, ttl, buffer, data_size, name_offset,
+                            name_length, ofs, length, user_data)))
 			{
 #if defined(mdns_plusplus_LogActivity)
                 std::cerr << "mDNS::discovery_recv exit: callback() failure\n";
@@ -1566,16 +1573,16 @@ mDNS::discovery_recv
 	size_t total_records = records;
 	size_t offset = MDNS_POINTER_DIFF(data, buffer);
 
-	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset,
-										  kEntryTypeAuthority, query_id, authority_rrs, callback, user_data);
+	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset, kEntryTypeAuthority, query_id, authority_rrs,
+                                 callback, user_data);
 	total_records += records;
 	if (records != static_cast<size_t>(authority_rrs))
 	{
 		return total_records;
 
 	}
-	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset,
-										  kEntryTypeAdditional, query_id, additional_rrs, callback, user_data);
+	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset, kEntryTypeAdditional, query_id, additional_rrs,
+                                 callback, user_data);
 	total_records += records;
 	if (records != static_cast<size_t>(additional_rrs))
 	{
@@ -1601,8 +1608,7 @@ mDNS::socket_listen
 #if defined(__APPLE__)
 	saddr.sa_len = sizeof(addr);
 #endif /* defined(__APPLE__) */
-	mDNS::ssize_t_ ret = recvfrom(sock, reinterpret_cast<char *>(buffer), static_cast<mDNS::size_t_>(capacity), 0,
-											&saddr, &addrlen);
+	mDNS::ssize_t_ ret = recvfrom(sock, reinterpret_cast<char *>(buffer), static_cast<mDNS::size_t_>(capacity), 0, &saddr, &addrlen);
 
 	if (0 >= ret)
 	{
@@ -1635,15 +1641,14 @@ mDNS::socket_listen
 		size_t verify_ofs = 12;
 		bool   dns_sd = false;
 
-		if (mDNS::mDNSPrivate::string_equal(buffer, data_size, offset, mdns_services_query,
-														sizeof(mdns_services_query), verify_ofs))
+		if (mDNSP::string_equal(buffer, data_size, offset, mdns_services_query, sizeof(mdns_services_query), verify_ofs))
 		{
 			dns_sd = true;
 		}
 		else
 		{
 			offset = question_offset;
-			if (! mDNS::mDNSPrivate::string_skip(buffer, data_size, offset))
+			if (! mDNSP::string_skip(buffer, data_size, offset))
 			{
 				break;
 
@@ -1672,8 +1677,8 @@ mDNS::socket_listen
 		}
 		++parsed;
 		if ((nullptr != callback) &&
-			(! callback(sock, saddr, addrlen, kEntryTypeQuestion, query_id, rtype, rclass, 0, buffer, data_size,
-							question_offset, length, question_offset, length, user_data)))
+			(! callback(sock, saddr, addrlen, kEntryTypeQuestion, query_id, rtype, rclass, 0, buffer, data_size, question_offset,
+                        length, question_offset, length, user_data)))
 		{
 #if defined(mdns_plusplus_LogActivity)
             std::cerr << "mDNS::socket_listen exit: callback() failure\n";
@@ -1736,7 +1741,7 @@ mDNS::query_send
 	// Name string
 	void * data = MDNS_POINTER_OFFSET(buffer, sizeof(header_t));
 
-	data = mDNS::mDNSPrivate::string_make(buffer, capacity, data, name, length);
+	data = mDNSP::string_make(buffer, capacity, data, name, length);
 	if (nullptr == data)
 	{
 		return -1;
@@ -1777,7 +1782,7 @@ mDNS::query_recv
 	saddr.sa_len = sizeof(addr);
 #endif /* defined(__APPLE__) */
 	mDNS::ssize_t_ ret = recvfrom(sock, reinterpret_cast<char *>(buffer), static_cast<mDNS::size_t_>(capacity), 0,
-											&saddr, &addrlen);
+                                  &saddr, &addrlen);
 
 	if (0 >= ret)
 	{
@@ -1820,7 +1825,7 @@ mDNS::query_recv
 	{
 		size_t ofs = MDNS_POINTER_DIFF(data, buffer);
 
-		if (! mDNS::mDNSPrivate::string_skip(buffer, data_size, ofs))
+		if (! mDNSP::string_skip(buffer, data_size, ofs))
 		{
 			return 0;
 
@@ -1835,8 +1840,8 @@ mDNS::query_recv
 	}
 	size_t total_records = 0;
 	size_t offset = MDNS_POINTER_DIFF(data, buffer);
-	size_t records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset,
-													kEntryTypeAnswer, query_id, answer_rrs, callback, user_data);
+	size_t records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset, kEntryTypeAnswer, query_id, answer_rrs,
+                                        callback, user_data);
 
 	total_records += records;
 	if (records != static_cast<size_t>(answer_rrs))
@@ -1844,16 +1849,16 @@ mDNS::query_recv
 		return total_records;
 
 	}
-	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset,
-										  kEntryTypeAuthority, query_id, authority_rrs, callback, user_data);
+	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset, kEntryTypeAuthority, query_id, authority_rrs,
+                                 callback, user_data);
 	total_records += records;
 	if (records != static_cast<size_t>(authority_rrs))
 	{
 		return total_records;
 
 	}
-	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset,
-										  kEntryTypeAdditional, query_id, additional_rrs, callback, user_data);
+	records = mdns_records_parse(sock, saddr, addrlen, buffer, data_size, offset, kEntryTypeAdditional, query_id, additional_rrs,
+                                 callback, user_data);
 	total_records += records;
 	if (records != static_cast<size_t>(additional_rrs))
 	{
@@ -1875,7 +1880,7 @@ mdns_answer_add_question_unicast
 {
 	const mDNS::rclass_t_ rclass = (MDNS_UNICAST_RESPONSE | mDNS::kClassTypeIn);
 
-	data = mDNS::mDNSPrivate::string_make(buffer, capacity, data, name, name_length, string_table);
+	data = mDNSP::string_make(buffer, capacity, data, name, name_length, string_table);
 	if (nullptr == data)
 	{
 		return nullptr;
@@ -1901,7 +1906,7 @@ mdns_answer_add_record_header
 	 const mDNS::record_t   record,
 	 mDNS::string_table_t & string_table)
 {
-	data = mDNS::mDNSPrivate::string_make(buffer, capacity, data, record.name.str, record.name.length, string_table);
+	data = mDNSP::string_make(buffer, capacity, data, record.name.str, record.name.length, string_table);
 	if (nullptr == data)
 	{
 		return nullptr;
@@ -1952,8 +1957,7 @@ mdns_answer_add_record
 	switch (record.type)
 	{
 		case mDNS::kRecordTypePTR:
-			data = mDNS::mDNSPrivate::string_make(buffer, capacity, data, record.data.ptr.name.str,
-															  record.data.ptr.name.length, string_table);
+			data = mDNSP::string_make(buffer, capacity, data, record.data.ptr.name.str, record.data.ptr.name.length, string_table);
 			break;
 
 		case mDNS::kRecordTypeSRV:
@@ -1969,8 +1973,7 @@ mdns_answer_add_record
 			data = mdns_htons(data, record.data.srv.priority);
 			data = mdns_htons(data, record.data.srv.weight);
 			data = mdns_htons(data, record.data.srv.port);
-			data = mDNS::mDNSPrivate::string_make(buffer, capacity, data, record.data.srv.name.str,
-															  record.data.srv.name.length, string_table);
+			data = mDNSP::string_make(buffer, capacity, data, record.data.srv.name.str, record.data.srv.name.length, string_table);
 			break;
 
 		case mDNS::kRecordTypeA:
@@ -2288,8 +2291,8 @@ mdns_answer_multicast_rclass
 	 mDNS::record_t *       additional,
 	 const size_t           additional_count)
 {
-	return mdns_answer_multicast_rclass_ttl(sock, buffer, capacity, rclass, answer, authority,
-														 authority_count, additional, additional_count, 60);
+	return mdns_answer_multicast_rclass_ttl(sock, buffer, capacity, rclass, answer, authority, authority_count, additional,
+                                            additional_count, 60);
 }
 
 static bool
@@ -2305,8 +2308,7 @@ mDNS::query_answer_multicast
 {
 	mDNS::rclass_t_ rclass = mDNS::kClassTypeIn;
 
-	return mdns_answer_multicast_rclass(sock, buffer, capacity, rclass, answer, authority,
-													authority_count, additional, additional_count);
+	return mdns_answer_multicast_rclass(sock, buffer, capacity, rclass, answer, authority, authority_count, additional, additional_count);
 }
 
 static bool
@@ -2322,8 +2324,7 @@ mDNS::announce_multicast
 {
 	mDNS::rclass_t_ rclass = (mDNS::kClassTypeIn | MDNS_CACHE_FLUSH);
 
-	return mdns_answer_multicast_rclass(sock, buffer, capacity, rclass, answer, authority,
-													authority_count, additional, additional_count);
+	return mdns_answer_multicast_rclass(sock, buffer, capacity, rclass, answer, authority, authority_count, additional, additional_count);
 }
 
 static bool
@@ -2339,8 +2340,8 @@ mDNS::goodbye_multicast
 {
 	mDNS::rclass_t_ rclass = (mDNS::kClassTypeIn | MDNS_CACHE_FLUSH);
 
-	return mdns_answer_multicast_rclass_ttl(sock, buffer, capacity, rclass, answer, authority,
-														 authority_count, additional, additional_count, 0);
+	return mdns_answer_multicast_rclass_ttl(sock, buffer, capacity, rclass, answer, authority, authority_count, additional,
+                                            additional_count, 0);
 }
 
 static mDNS::string_t
@@ -2360,7 +2361,7 @@ mDNS::record_parse_ptr
 	{
 		size_t work_offset = offset;
 
-		return mDNS::mDNSPrivate::string_extract(buffer, size, work_offset, strbuffer, capacity);
+		return mDNSP::string_extract(buffer, size, work_offset, strbuffer, capacity);
 
 	}
 	return make_mdns_string(nullptr, 0);
@@ -2397,7 +2398,7 @@ mDNS::record_parse_srv
 		srv.weight = mdns_ntohs(recorddata++);
 		srv.port = mdns_ntohs(recorddata++);
 		work_offset += (sizeof(srv.priority) + sizeof(srv.weight) + sizeof(srv.port));
-		srv.name = mDNS::mDNSPrivate::string_extract(buffer, size, work_offset, strbuffer, capacity);
+		srv.name = mDNSP::string_extract(buffer, size, work_offset, strbuffer, capacity);
 	}
 	return srv;
 }
