@@ -1721,11 +1721,14 @@ mDNS::query_send
 		{
 			rclass &= ~MDNS_UNICAST_RESPONSE;
 		}
-		else if ((AF_INET6 == saddr.sa_family) &&
-					(MDNS_PORT == ntohs(reinterpret_cast<struct sockaddr_in6 &>(saddr).sin6_port)))
-		{
-			rclass &= ~MDNS_UNICAST_RESPONSE;
-		}
+        else
+        {
+            if ((AF_INET6 == saddr.sa_family) &&
+                (MDNS_PORT == ntohs(reinterpret_cast<struct sockaddr_in6 &>(saddr).sin6_port)))
+            {
+                rclass &= ~MDNS_UNICAST_RESPONSE;
+            }
+        }
 	}
 	header_t * header = reinterpret_cast<header_t *>(buffer);
 
